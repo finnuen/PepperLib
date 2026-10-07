@@ -1,0 +1,26 @@
+name: Build Standalone PepperLib.exe (Windows C++20 / WinRT / SQLite FTS5)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows-exe:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Standalone PepperLib.exe via build.bat
+        shell: cmd
+        run: |
+          call build.bat
+
+      - name: Upload Compiled Standalone PepperLib.exe Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PepperLib-Standalone-Windows-x64-EXE
+          path: |
+            PepperLib.exe
+          if-no-files-found: error
