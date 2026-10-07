@@ -30,11 +30,11 @@ export function createSelfExtractingLauncherBat(): string {
 
   const batScript = `@echo off
 setlocal EnableDelayedExpansion
-title One-Click PepperLib.exe v1.1 Self-Extracting Builder
+title One-Click PepperLib.exe v1.2 Self-Extracting Builder
 
 cd /d "%~dp0"
 echo ============================================================================
-echo  Extracting embedded main.cpp (Base64 chunked) and building PepperLib.exe v1.1
+echo  Extracting embedded main.cpp (Base64 chunked) and building PepperLib.exe v1.2
 echo ============================================================================
 
 (

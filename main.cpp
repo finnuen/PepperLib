@@ -1,5 +1,5 @@
 // ============================================================================
-// PepperLib.exe v1.1 - Native Win32 + C++20 + WinRT OCR & PDF + SQLite FTS5
+// PepperLib.exe v1.2 - Native Win32 + C++20 + WinRT OCR & PDF + SQLite FTS5
 // Version policy: Bump version by 1 on every change made.
 // ============================================================================
 // Upgraded Architecture:
@@ -95,8 +95,8 @@ namespace fs = std::filesystem;
 // ============================================================================
 // Application Version (Bump by 1 on every change made)
 // ============================================================================
-constexpr const wchar_t* PEPPERLIB_VERSION      = L"1.1";
-constexpr const wchar_t* PEPPERLIB_WINDOW_TITLE = L"PepperLib v1.1";
+constexpr const wchar_t* PEPPERLIB_VERSION      = L"1.2";
+constexpr const wchar_t* PEPPERLIB_WINDOW_TITLE = L"PepperLib v1.2";
 
 // ============================================================================
 // Control & Menu Identifiers
@@ -4604,45 +4604,81 @@ void ShowFormatFilterWindow(HWND hwndParent) {
 // ============================================================================
 // Warning Dialog for "OCR all indexed files":
 // Displays "Your PC probably will lag so much" with "Run anyway" and "Cancel"
+// Dynamically measures text height so the warning text is never cropped
 // ============================================================================
 LRESULT CALLBACK OcrWarningWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
         case WM_CREATE: {
+            const int clientW = 440;
+            const int marginX = 18;
+            const int textW   = clientW - marginX * 2;
+
             HWND hTitle = CreateWindowExW(
                 0, L"STATIC", L"Your PC probably will lag so much",
                 WS_CHILD | WS_VISIBLE,
-                18, 16, 360, 22,
+                marginX, 16, textW, 24,
                 hwnd, nullptr, g_app.hInst, nullptr
             );
             SendMessageW(hTitle, WM_SETFONT, reinterpret_cast<WPARAM>(g_app.hBoldFont), TRUE);
 
-            HWND hDesc = CreateWindowExW(
-                0, L"STATIC",
+            const wchar_t* descText =
                 L"Running OCR across all indexed files on your PC is resource-intensive. "
                 L"Safety throttling (low thread priority, 20ms yield between files, and 40 MB file size cap) "
-                L"is enabled so PepperLib and Windows will not crash.",
+                L"is enabled so PepperLib and Windows will not crash, and you can pause it anytime.";
+
+            int descH = 84;
+            HDC hdc = GetDC(hwnd);
+            if (hdc) {
+                HGDIOBJ hOldFont = SelectObject(hdc, g_app.hUiFont ? g_app.hUiFont : GetStockObject(DEFAULT_GUI_FONT));
+                RECT rcCalc = { 0, 0, textW, 0 };
+                DrawTextW(hdc, descText, -1, &rcCalc, DT_WORDBREAK | DT_CALCRECT);
+                descH = std::max(84, (int)(rcCalc.bottom - rcCalc.top) + 10);
+                SelectObject(hdc, hOldFont);
+                ReleaseDC(hwnd, hdc);
+            }
+
+            HWND hDesc = CreateWindowExW(
+                0, L"STATIC", descText,
                 WS_CHILD | WS_VISIBLE,
-                18, 44, 360, 56,
+                marginX, 46, textW, descH,
                 hwnd, nullptr, g_app.hInst, nullptr
             );
             SendMessageW(hDesc, WM_SETFONT, reinterpret_cast<WPARAM>(g_app.hUiFont), TRUE);
 
+            int btnY   = 46 + descH + 14;
+            int btnH   = 30;
+            int runW   = 106;
+            int canW   = 96;
+            int canX   = clientW - marginX - canW;
+            int runX   = canX - 8 - runW;
+
             HWND hBtnRun = CreateWindowExW(
                 0, L"BUTTON", L"Run anyway",
                 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-                174, 110, 100, 28,
+                runX, btnY, runW, btnH,
                 hwnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(IDC_OCR_WARN_RUN)),
                 g_app.hInst, nullptr
             );
             HWND hBtnCancel = CreateWindowExW(
                 0, L"BUTTON", L"Cancel",
                 WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
-                282, 110, 94, 28,
+                canX, btnY, canW, btnH,
                 hwnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(IDC_OCR_WARN_CANCEL)),
                 g_app.hInst, nullptr
             );
             SendMessageW(hBtnRun,    WM_SETFONT, reinterpret_cast<WPARAM>(g_app.hBoldFont), TRUE);
             SendMessageW(hBtnCancel, WM_SETFONT, reinterpret_cast<WPARAM>(g_app.hUiFont), TRUE);
+
+            RECT rcWin = { 0, 0, clientW, btnY + btnH + 16 };
+            DWORD style   = (DWORD)GetWindowLongPtrW(hwnd, GWL_STYLE);
+            DWORD exStyle = (DWORD)GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+            AdjustWindowRectEx(&rcWin, style, FALSE, exStyle);
+            SetWindowPos(
+                hwnd, nullptr, 0, 0,
+                rcWin.right - rcWin.left,
+                rcWin.bottom - rcWin.top,
+                SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE
+            );
             return 0;
         }
 
@@ -4687,7 +4723,7 @@ void ShowOcrAllWarningDialog(HWND hwndParent) {
         WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_VISIBLE,
         rcParent.left + 80,
         rcParent.top + 110,
-        406, 182,
+        456, 232,
         hwndParent,
         nullptr,
         g_app.hInst,

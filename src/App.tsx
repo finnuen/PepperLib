@@ -37,7 +37,7 @@ type ActiveSection = 'workbench' | 'simulator' | 'architecture';
 type ActiveCodeTab = 'main.cpp' | 'build.bat' | 'github_workflow';
 
 // Version policy: Bump by 1 on every change made
-const PEPPERLIB_VERSION = '1.1';
+const PEPPERLIB_VERSION = '1.2';
 
 interface CachedMtimeEntry {
   mtimeTicks: number;

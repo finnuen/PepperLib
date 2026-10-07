@@ -1,9 +1,9 @@
 @echo off
 setlocal EnableDelayedExpansion
-title PepperLib.exe v1.1 - Zero-Friction Native C++20 / WinRT / SQLite FTS5 Builder
+title PepperLib.exe v1.2 - Zero-Friction Native C++20 / WinRT / SQLite FTS5 Builder
 
 echo ============================================================================
-echo  PepperLib.exe v1.1 - Turnkey Standalone Windows Build Pipeline
+echo  PepperLib.exe v1.2 - Turnkey Standalone Windows Build Pipeline
 echo ============================================================================
 
 cd /d "%~dp0"
@@ -128,17 +128,17 @@ if exist "pepperlib.ico" (
     (
         echo IDI_ICON1 ICON "pepperlib.ico"
         echo 1 VERSIONINFO
-        echo FILEVERSION 1,1,0,0
-        echo PRODUCTVERSION 1,1,0,0
+        echo FILEVERSION 1,2,0,0
+        echo PRODUCTVERSION 1,2,0,0
         echo BEGIN
         echo   BLOCK "StringFileInfo"
         echo   BEGIN
         echo     BLOCK "040904B0"
         echo     BEGIN
         echo       VALUE "FileDescription", "PepperLib"
-        echo       VALUE "FileVersion", "1.1"
+        echo       VALUE "FileVersion", "1.2"
         echo       VALUE "ProductName", "PepperLib"
-        echo       VALUE "ProductVersion", "1.1"
+        echo       VALUE "ProductVersion", "1.2"
         echo     END
         echo   END
         echo   BLOCK "VarFileInfo"
@@ -198,8 +198,8 @@ if exist "pepperlib.res" del /q "pepperlib.res"
 
 echo.
 echo ============================================================================
-echo  BUILD SUCCEEDED: %CD%\PepperLib.exe (Version 1.1)
-echo  Version        : 1.1
+echo  BUILD SUCCEEDED: %CD%\PepperLib.exe (Version 1.2)
+echo  Version        : 1.2
 echo  Settings/Cache : %%APPDATA%%\PepperLib
 echo  Linking Mode   : Static CRT (/MT) - Zero VC++ Redistributable Dependencies
 echo  OCR and Docs   : Windows.Media.Ocr + Windows.Data.Pdf + Native Text Reader
